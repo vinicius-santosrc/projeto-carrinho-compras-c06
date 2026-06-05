@@ -222,7 +222,7 @@ public class Main {
 
         try {
             int idPedido = pedidoRepository.listarTodos().size() + 1;
-            Pedido pedido = new Pedido(idPedido, new Date(), 0);
+            Pedido pedido = new Pedido(idPedido, 0);
             pedido.finalizar(cliente.getCarrinho(), formaPagamento);
 
             pedidoRepository.salvar(pedido);
@@ -240,7 +240,7 @@ public class Main {
             case 1:
                 return new PagamentoPix("vinicius@email.com");
             case 2:
-                return new PagamentoCartao("1234 5678 9012 3456");
+                return new PagamentoCartao("1234567890123456");
             case 3:
                 return new PagamentoBoleto("00190.00009 01234.567891 23456.789012 3 12340000010000");
             default:
@@ -287,7 +287,7 @@ public class Main {
         double valorTeste = 100.00;
 
         IPagamento pix = new PagamentoPix("vinicius@email.com");
-        IPagamento cartao = new PagamentoCartao("1234 5678 9012 3456");
+        IPagamento cartao = new PagamentoCartao("1234567890123456");
         IPagamento boleto = new PagamentoBoleto("00190.00009 01234.567891 23456.789012 3 12340000010000");
 
         testarPagamento("Pix", pix, valorTeste);
