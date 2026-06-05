@@ -9,7 +9,7 @@ public class Pedido {
     private int id;
     private double valorTotal;
 
-    public Pedido(int id, Date data, double valorTotal) {
+    public Pedido(int id, double valorTotal) {
         this.id = id;
         this.valorTotal = valorTotal;
     }
