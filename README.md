@@ -6,7 +6,7 @@ Este projeto foi desenvolvido para a disciplina de Programação Orientada a Obj
 
 O grupo utilizou Inteligência Artificial como apoio durante o desenvolvimento do projeto.
 a ferramenta utilizada foi o ChatGPT 5.5 Thinking.
-a IA foi utilizada somente como auxílio na construção e organização dos códigos, principalmente para ajudar na criação da estrutura das classes, métodos de teste na classe `Main` e correção de erros de compilação encontrados durante o desenvolvimento.
+a IA foi utilizada somente como auxílio na utilização da ferramenta PlantUML, na construção e organização dos códigos, principalmente para ajudar na criação da estrutura das classes, métodos de teste na classe `Main` e correção de erros de compilação encontrados durante o desenvolvimento.
 as decisões finais sobre a implementação, adaptações do código, testes e organização do projeto foram feitas pelo grupo. O código foi revisado e ajustado pelos integrantes para ficar de acordo com o UML e com os requisitos do trabalho.
 a IA não foi utilizada para substituir completamente o desenvolvimento do projeto, mas sim como uma ferramenta de apoio para tirar dúvidas e acelerar a construção de algumas partes do sistema.
 
