@@ -18,7 +18,7 @@ public class Administrador extends Usuario{
         // Simulação do cadastro exibindo os dados do produto na tela
         System.out.println("ID do Produto: " + produto.getId());
         System.out.println("Nome: " + produto.getNome());
-        System.out.println("Preço Base: R$ " + produto.getPreco());
+        System.out.println("Preço Base: R$ " + produto.getPrecoBase());
         System.out.println("Quantidade em Estoque: " + produto.getQuantidadeEmEstoque());
 
         System.out.println("[SUCESSO] Produto '" + produto.getNome() + "' cadastrado com sucesso!");
