@@ -1,0 +1,159 @@
+@startuml
+
+'========================
+' INTERFACES
+'========================
+
+interface IPagamento {
+    +processarPagamento(valor: double): boolean
+}
+
+interface IRepository<T> {
+    +salvar(obj: T)
+    +buscar(id: int): T
+    +remover(id: int)
+}
+
+'========================
+' CLASSES ABSTRATAS
+'========================
+
+abstract class Usuario {
+    -id: int
+    -nome: String
+    -email: String
+
+    +login()
+    +logout()
+}
+
+abstract class Produto {
+    -id: int
+    -nome: String
+    -preco: double
+
+    +getPreco(): double
+}
+
+'========================
+' HERANÇA
+'========================
+
+class Cliente {
+    -endereco: String
+    +adicionarCarrinho()
+}
+
+class Administrador {
+    +cadastrarProduto()
+    +gerarRelatorio()
+}
+
+Usuario <|-- Cliente
+Usuario <|-- Administrador
+
+class ProdutoFisico {
+    -peso: double
+}
+
+class ProdutoDigital {
+    -linkDownload: String
+}
+
+Produto <|-- ProdutoFisico
+Produto <|-- ProdutoDigital
+
+'========================
+' PAGAMENTOS (POLIMORFISMO)
+'========================
+
+class PagamentoCartao {
+    -numeroCartao: String
+    +processarPagamento()
+}
+
+class PagamentoPix {
+    -chavePix: String
+    +processarPagamento()
+}
+
+class PagamentoBoleto {
+    -codigoBarras: String
+    +processarPagamento()
+}
+
+IPagamento <|.. PagamentoCartao
+IPagamento <|.. PagamentoPix
+IPagamento <|.. PagamentoBoleto
+
+'========================
+' CARRINHO
+'========================
+
+class Carrinho {
+    -itens: List<ItemCarrinho>
+    +adicionarItem()
+    +removerItem()
+    +calcularTotal(): double
+}
+
+class ItemCarrinho {
+    produto : Produto
+    -quantidade: int
+    +subtotal(): double
+}
+
+Carrinho "1" *-- "*" ItemCarrinho
+Produto "1" <-- "*" ItemCarrinho
+
+Cliente "1" -- "1" Carrinho
+
+'========================
+' PEDIDO
+'========================
+
+class Pedido {
+    -id: int
+    -data: Date
+    -valorTotal: double
+    +finalizar()
+}
+
+Carrinho --> Pedido
+
+Pedido --> IPagamento
+
+'========================
+' REPOSITÓRIO / BANCO
+'========================
+
+class ProdutoArquivoRepository
+class PedidoArquivoRepository
+
+IRepository <|.. ProdutoArquivoRepository
+IRepository <|.. PedidoArquivoRepository
+
+ProdutoArquivoRepository --> Produto
+PedidoArquivoRepository --> Pedido
+
+'========================
+' THREAD
+'========================
+
+class ThreadAtualizacaoEstoque {
+    +run()
+}
+
+ThreadAtualizacaoEstoque --> Produto
+
+'========================
+' EXCEÇÕES
+'========================
+
+class EstoqueInsuficienteException
+class PagamentoException
+
+Carrinho ..> EstoqueInsuficienteException
+Pedido ..> PagamentoException
+
+@enduml
