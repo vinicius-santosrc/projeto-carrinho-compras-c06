@@ -1,159 +1,176 @@
 @startuml
+skinparam classAttributeIconSize 0
 
-'========================
-' INTERFACES
-'========================
+package "br.inatel.sistema_carrinho_compras" {
 
-interface IPagamento {
-    +processarPagamento(valor: double): boolean
+    package "user" {
+        abstract class Usuario {
+            # id : int
+            # nome : String
+            # email : String
+            # logado : boolean
+            + Usuario(id: int, nome: String, email: String)
+            + login(nome: String, id: int) : void
+            + logout() : void
+            + getId() : int
+            + getNome() : String
+            + getEmail() : String
+            + isLogado() : boolean
+        }
+
+        class Cliente {
+            - endereco : String
+            - carrinho : Carrinho
+            + Cliente(id: int, nome: String, email: String, endereco: String)
+            + adicionarCarrinho(item: ItemCarrinho) : void
+            + getCarrinho() : Carrinho
+            + getEndereco() : String
+            + setEndereco(endereco: String) : void
+        }
+
+        class Administrador {
+            + Administrador(id: int, nome: String, email: String)
+            + cadastrarProduto(produto: Produto) : void
+            + gerarRelatorio(listaPedidos: List<Pedido>) : void
+        }
+
+        Usuario <|-- Cliente
+        Usuario <|-- Administrador
+    }
+
+    package "model" {
+        abstract class Produto {
+            # id : int
+            # nome : String
+            # preco : double
+            # quantidadeEmEstoque : int
+            + Produto(id: int, nome: String, preco: double, quantidadeEmEstoque: int)
+            + getId() : int
+            + getNome() : String
+            + getPrecoBase() : double
+            + getQuantidadeEmEstoque() : int
+            + verificarDisponibilidade(quantidadeDesejada: int) : void
+            + diminuirEstoque(quantidade: int) : void
+            + {abstract} getPreco() : double
+        }
+
+        class ProdutoFisico {
+            - peso : double
+            + ProdutoFisico(id: int, nome: String, preco: double, quantidadeEmEstoque: int, peso: double)
+            + getPeso() : double
+            + getPreco() : double
+        }
+
+        class ProdutoDigital {
+            - linkDownload : String
+            + ProdutoDigital(id: int, nome: String, preco: double, quantidadeEmEstoque: int, linkDownload: String)
+            + getLinkDownload() : String
+            + getPreco() : double
+        }
+
+        class ItemCarrinho {
+            - produto : Produto
+            - quantidade : int
+            + ItemCarrinho(produto: Produto, quantidade: int)
+            + getProduto() : Produto
+            + getQuantidade() : int
+            + subtotal() : double
+        }
+
+        class Carrinho {
+            - itens : List<ItemCarrinho>
+            + Carrinho()
+            + adicionarItem(item: ItemCarrinho) : void
+            + removerItem(item: ItemCarrinho) : void
+            + calcularTotal() : double
+            + getItens() : List<ItemCarrinho>
+        }
+
+        class Pedido {
+            - id : int
+            - valorTotal : double
+            + Pedido(id: int, valorTotal: double)
+            + finalizar(carrinho: Carrinho, formaPagamento: IPagamento) : void
+            + getId() : int
+            + getValorTotal() : double
+        }
+
+        Produto <|-- ProdutoFisico
+        Produto <|-- ProdutoDigital
+        Carrinho "1" *-- "*" ItemCarrinho : agrega >
+        ItemCarrinho "1" --> "1" Produto : contém >
+    }
+
+    package "payment" {
+        interface IPagamento {
+            + processarPagamento(valor: double) : boolean
+        }
+
+        class PagamentoPix {
+            - chavePix : String
+            + PagamentoPix(chavePix: String)
+            + processarPagamento(valor: double) : boolean
+        }
+
+        class PagamentoCartao {
+            - numeroCartao : String
+            + PagamentoCartao(numeroCartao: String)
+            + processarPagamento(valor: double) : boolean
+        }
+
+        class PagamentoBoleto {
+            - codigoBarras : String
+            + PagamentoBoleto(codigoBarras: String)
+            + processarPagamento(valor: double) : boolean
+        }
+
+        IPagamento <|.. PagamentoPix
+        IPagamento <|.. PagamentoCartao
+        IPagamento <|.. PagamentoBoleto
+    }
+
+    package "repository" {
+        interface IRepository<T> {
+            + salvar(obj: T) : void
+            + buscar(id: int) : T
+            + remover(id: int) : void
+        }
+
+        class ProdutoArquivoRepository {
+            - produtos : List<Produto>
+            + salvar(produto: Produto) : void
+            + buscar(id: int) : Produto
+            + remover(id: int) : void
+            + listarTodos() : List<Produto>
+        }
+
+        class PedidoArquivoRepository {
+            - pedidos : List<Pedido>
+            + salvar(pedido: Pedido) : void
+            + buscar(id: int) : Pedido
+            + remover(id: int) : void
+            + listarTodos() : List<Pedido>
+        }
+
+        IRepository <|.. ProdutoArquivoRepository
+        IRepository <|.. PedidoArquivoRepository
+    }
+
+    package "exception" {
+        class EstoqueInsufisienteException {
+            + EstoqueInsufisienteException(message: String)
+        }
+
+        class PagamentoException {
+            + PagamentoException(message: String)
+        }
+    }
+
+
+    Cliente "1" *-- "1" Carrinho : possui >
+    Pedido ..> IPagamento : utiliza >
+    Administrador ..> Produto : manipula >
+    Carrinho ..> EstoqueInsufisienteException : lança >
+    IPagamento ..> PagamentoException : lança >
 }
-
-interface IRepository<T> {
-    +salvar(obj: T)
-    +buscar(id: int): T
-    +remover(id: int)
-}
-
-'========================
-' CLASSES ABSTRATAS
-'========================
-
-abstract class Usuario {
-    -id: int
-    -nome: String
-    -email: String
-
-    +login()
-    +logout()
-}
-
-abstract class Produto {
-    -id: int
-    -nome: String
-    -preco: double
-
-    +getPreco(): double
-}
-
-'========================
-' HERANÇA
-'========================
-
-class Cliente {
-    -endereco: String
-    +adicionarCarrinho()
-}
-
-class Administrador {
-    +cadastrarProduto()
-    +gerarRelatorio()
-}
-
-Usuario <|-- Cliente
-Usuario <|-- Administrador
-
-class ProdutoFisico {
-    -peso: double
-}
-
-class ProdutoDigital {
-    -linkDownload: String
-}
-
-Produto <|-- ProdutoFisico
-Produto <|-- ProdutoDigital
-
-'========================
-' PAGAMENTOS (POLIMORFISMO)
-'========================
-
-class PagamentoCartao {
-    -numeroCartao: String
-    +processarPagamento()
-}
-
-class PagamentoPix {
-    -chavePix: String
-    +processarPagamento()
-}
-
-class PagamentoBoleto {
-    -codigoBarras: String
-    +processarPagamento()
-}
-
-IPagamento <|.. PagamentoCartao
-IPagamento <|.. PagamentoPix
-IPagamento <|.. PagamentoBoleto
-
-'========================
-' CARRINHO
-'========================
-
-class Carrinho {
-    -itens: List<ItemCarrinho>
-    +adicionarItem()
-    +removerItem()
-    +calcularTotal(): double
-}
-
-class ItemCarrinho {
-    produto : Produto
-    -quantidade: int
-    +subtotal(): double
-}
-
-Carrinho "1" *-- "*" ItemCarrinho
-Produto "1" <-- "*" ItemCarrinho
-
-Cliente "1" -- "1" Carrinho
-
-'========================
-' PEDIDO
-'========================
-
-class Pedido {
-    -id: int
-    -data: Date
-    -valorTotal: double
-    +finalizar()
-}
-
-Carrinho --> Pedido
-
-Pedido --> IPagamento
-
-'========================
-' REPOSITÓRIO / BANCO
-'========================
-
-class ProdutoArquivoRepository
-class PedidoArquivoRepository
-
-IRepository <|.. ProdutoArquivoRepository
-IRepository <|.. PedidoArquivoRepository
-
-ProdutoArquivoRepository --> Produto
-PedidoArquivoRepository --> Pedido
-
-'========================
-' THREAD
-'========================
-
-class ThreadAtualizacaoEstoque {
-    +run()
-}
-
-ThreadAtualizacaoEstoque --> Produto
-
-'========================
-' EXCEÇÕES
-'========================
-
-class EstoqueInsuficienteException
-class PagamentoException
-
-Carrinho ..> EstoqueInsuficienteException
-Pedido ..> PagamentoException
-
-@enduml
+@endum
